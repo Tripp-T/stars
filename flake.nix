@@ -39,6 +39,7 @@
               nodejs
               nodePackages.pnpm
               yarn
+              tailwindcss
             ];
           };
         }
