@@ -19,12 +19,11 @@ class StarManager {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-
-    maxDistance = 500;
+    maxDistance = 700;
     maxStars = 10000;
     stars: Star[] = [];
 
-    tickInterval = 50; // ms, increase for slower ticks
+    tickInterval = 25; // ms, increase for slower ticks
     lastTick = 0;
     constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
@@ -43,13 +42,17 @@ class StarManager {
     }
 
     tick() {
+        var newStars: Star[] = [];
         for (const star of this.stars) {
             star.location.x += star.velocity.x;
             star.location.y += star.velocity.y;
             star.location.z += star.velocity.z;
+            // skip reusing stars that are too far or out of view
+            if (star.location.z < 1 && star.location.z > -this.maxDistance) {
+                newStars.push(star);
+            }
         }
-        // remove stars that are too far or out of view
-        this.stars = this.stars.filter(star => (star.location.z < 1 && star.location.z > -this.maxDistance));
+        this.stars = newStars;
 
         if (this.stars.length < this.maxStars) {
             for (let i = 0; i < Math.random() * (this.maxStars - this.stars.length); i++) {
@@ -57,7 +60,7 @@ class StarManager {
                 const location = new Coordinates(
                     (Math.random() - 0.5) * this.canvas.width,
                     (Math.random() - 0.5) * this.canvas.height,
-                    -25
+                    -10
                 );
                 this.stars.push(new Star(size, location));
             }
