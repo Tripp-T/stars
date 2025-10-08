@@ -37,7 +37,6 @@
             packages = with pkgs; [
               node2nix
               nodejs
-              tailwindcss
             ];
           };
         }

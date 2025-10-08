@@ -1,4 +1,6 @@
-# Vite + TypeScript
+# Stars (Vite + TypeScript)
+
+Current build is viewable here: [https://tripp-t.github.io/stars/](https://tripp-t.github.io/stars/)
 
 This project uses Vite as the primary build tool with TypeScript support.
 
