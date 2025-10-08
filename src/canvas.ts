@@ -5,6 +5,7 @@ export function setupCanvas(element: HTMLCanvasElement) {
         return;
     };
     
+    // make canvas full screen on init and resize
     element.width = window.innerWidth;
     element.height = window.innerHeight;
     window.onresize = () => {
@@ -19,8 +20,8 @@ class StarManager {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-    maxDistance = 700;
-    maxStars = 10000;
+    maxDistance = 575;
+    maxStars = 7000;
     stars: Star[] = [];
 
     tickInterval = 25; // ms, increase for slower ticks
@@ -29,7 +30,6 @@ class StarManager {
         this.canvas = canvas;
         this.ctx = ctx;
 
-        // decouple tick and render for smoother control
         const animate = (now: number) => {
             if (!this.lastTick || now - this.lastTick >= this.tickInterval) {
                 this.tick();
@@ -54,13 +54,15 @@ class StarManager {
         }
         this.stars = newStars;
 
+        // add new stars if under max
         if (this.stars.length < this.maxStars) {
+            // add a random number of stars up to the max
             for (let i = 0; i < Math.random() * (this.maxStars - this.stars.length); i++) {
-                const size = Math.random() * 3 + 1;
+                const size = Math.random() * 3 + 2;
                 const location = new Coordinates(
                     (Math.random() - 0.5) * this.canvas.width,
                     (Math.random() - 0.5) * this.canvas.height,
-                    -10
+                    0
                 );
                 this.stars.push(new Star(size, location));
             }
@@ -109,11 +111,11 @@ class Star {
     constructor(size: number, location: Coordinates) {
         this.size = size;
 
-    this.location = location;
-    // Make velocity visible (not too slow)
-    this.velocity = new Coordinates(0, 0, -Math.random() * 2 - 0.5); // towards the viewer
+        this.location = location;
+        // randomized velocity away from the viewer
+        this.velocity = new Coordinates(0, 0, -Math.random() * 5 - 0.5);
 
-        // randomize color
+        // randomized color
         this.color = `rgb(${Math.floor(Math.random() * 156) + 100}, ${Math.floor(Math.random() * 156) + 100}, ${Math.floor(Math.random() * 156) + 100})`;
     }
 }
