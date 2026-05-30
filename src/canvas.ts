@@ -8,10 +8,10 @@ export function setupCanvas(element: HTMLCanvasElement) {
     // make canvas full screen on init and resize
     element.width = window.innerWidth;
     element.height = window.innerHeight;
-    window.onresize = () => {
+    window.addEventListener('resize', () => {
         element.width = window.innerWidth;
         element.height = window.innerHeight;
-    };
+    });
 
     new StarManager(element, ctx);
 }
@@ -42,7 +42,7 @@ class StarManager {
     }
 
     tick() {
-        var newStars: Star[] = [];
+        const newStars: Star[] = [];
         for (const star of this.stars) {
             star.location.x += star.velocity.x;
             star.location.y += star.velocity.y;
@@ -55,9 +55,11 @@ class StarManager {
         this.stars = newStars;
 
         // add new stars if under max
-        if (this.stars.length < this.maxStars) {
-            // add a random number of stars up to the max
-            for (let i = 0; i < Math.random() * (this.maxStars - this.stars.length); i++) {
+        const deficit = this.maxStars - this.stars.length;
+        if (deficit > 0) {
+            // add a random number of new stars, up to the remaining capacity
+            const spawnCount = Math.floor(Math.random() * deficit);
+            for (let i = 0; i < spawnCount; i++) {
                 const size = Math.random() * 3 + 2;
                 const location = new Coordinates(
                     (Math.random() - 0.5) * this.canvas.width,
@@ -76,11 +78,16 @@ class StarManager {
 
         // draw stars
         for (const star of this.stars) {
-            this.ctx.fillStyle = star.color;
+            // The projection divides by z, so a star sitting at z === 0 (its spawn
+            // depth) produces non-finite coordinates and size. Skip it until it has
+            // moved, instead of relying on the canvas silently ignoring such draws.
+            const screenSize = (star.size / -star.location.z) * 100;
+            if (!Number.isFinite(screenSize) || screenSize <= 0) continue;
+
             const screenX = (star.location.x / star.location.z) * this.canvas.width + (this.canvas.width / 2);
             const screenY = (star.location.y / star.location.z) * this.canvas.height + (this.canvas.height / 2);
-            const screenSize = (star.size / -star.location.z) * 100;
 
+            this.ctx.fillStyle = star.color;
             this.ctx.beginPath();
             this.ctx.arc(screenX, screenY, screenSize, 0, Math.PI * 2);
             this.ctx.fill();
